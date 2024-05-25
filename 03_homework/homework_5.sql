@@ -10,6 +10,17 @@ How many customers are there (y).
 Before your final group by you should have the product of those two queries (x*y).  */
 
 
+CREATE TEMP TABLE vendors_and_products as
+Select vi.vendor_id, vi.product_id, vi.original_price*5 as price_of_five_products, v.vendor_name, p.product_name
+from vendor_inventory as vi
+INNER JOIN vendor as v on v.vendor_id = vi.vendor_id
+INNER JOIN product as p on p.product_id = vi.product_id
+GROUP by vi.product_id, vi.vendor_id;
+
+SELECT vp.vendor_name, vp.product_name, SUM(vp.price_of_five_products) as money_per_product
+FROM vendors_and_products as vp
+CROSS JOIN customer as c
+GROUP BY vp.vendor_name, vp.product_name
 
 -- INSERT
 /*1.  Create a new table "product_units". 
@@ -17,11 +28,17 @@ This table will contain only products where the `product_qty_type = 'unit'`.
 It should use all of the columns from the product table, as well as a new column for the `CURRENT_TIMESTAMP`.  
 Name the timestamp column `snapshot_timestamp`. */
 
+CREATE TABLE product_units as
+SELECT *, CURRENT_TIMESTAMP as snapshot_timestamp
+from product
+WHERE product_qty_type = 'unit';
 
 
 /*2. Using `INSERT`, add a new row to the product_units table (with an updated timestamp). 
 This can be any product you desire (e.g. add another record for Apple Pie). */
 
+INSERT INTO product_units
+VALUES (24,'Yellow Potatoes','medium',1,'unit',CURRENT_TIMESTAMP)
 
 
 -- DELETE
@@ -30,6 +47,8 @@ This can be any product you desire (e.g. add another record for Apple Pie). */
 HINT: If you don't specify a WHERE clause, you are going to have a bad time.*/
 
 
+DELETE FROM product_units
+WHERE product_id = 24;
 
 -- UPDATE
 /* 1.We want to add the current_quantity to the product_units table. 
@@ -48,4 +67,23 @@ Finally, make sure you have a WHERE statement to update the right row,
 	you'll need to use product_units.product_id to refer to the correct row within the product_units table. 
 When you have all of these components, you can run the update statement. */
 
+CREATE TEMP TABLE quantity_and_product as
+select quantity, product_id
+from(
+select *, row_number() OVER ( 
+        PARTITION BY product_id
+        ORDER BY market_date DESC) as latest_rank
+from vendor_inventory
+ORDER by market_date DESC)
+WHERE latest_rank = 1;
+
+CREATE TEMP TABLE latest_quantity_and_product as
+SELECT product_id, coalesce(latest_quantity,0) as latest_quantity
+from product
+left JOIN quantity_and_product USING (product_id);
+
+UPDATE product_units
+SET current_quantity = (SELECT lqp.latest_quantity
+						FROM latest_quantity_and_product as lqp
+						where lqp.product_id = product_units.product_id)
 
