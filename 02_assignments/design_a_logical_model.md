@@ -5,6 +5,10 @@ Create a logical model for a small bookstore. 📚
 
 At the minimum it should have employee, order, sales, customer, and book entities (tables). Determine sensible column and table design based on what you know about these concepts. Keep it simple, but work out sensible relationships to keep tables reasonably sized. Include a date table. There are several tools online you can use, I'd recommend [_Draw.io_](https://www.drawio.com/) or [_LucidChart_](https://www.lucidchart.com/pages/).
 
+My logical model for questions 1-2 is as follows:
+
+![Q1-2_sql.png](./Q1-2_sql.png)
+
 ## Question 2
 We want to create employee shifts, splitting up the day into morning and evening. Add this to the ERD.
 
@@ -14,8 +18,12 @@ The store wants to keep customer addresses. Propose two architectures for the CU
 _Hint, search type 1 vs type 2 slowly changing dimensions._
 
 Bonus: Are there privacy implications to this, why or why not?
+
+![Q3_sql.png](./Q3_sql.png)
 ```
-Your answer...
+The architectures are described in the image. The table on the left (which I called type I, sorry if this does not coincide with your labels!) will overwrite changes. It has customer_ID as a primary column and that is why the relationship with the customer table is 1-1. If you want to change the address your only way is to update the existing record. The table on the right (I called it type II) will retain changes. It does not have primary key, so you can add as many addresses to one customer as you wish, but this table has date&time_added column which will show when does the address was added. If you want to find the last one you should sort this table by this time column and that is how you can retain changes.
+
+Since the address is private information there can be privacy implications. The database should be accessed only by specified employees, to ensure that there will not be any data leakages. 
 ```
 
 ## Question 4
@@ -23,7 +31,7 @@ Review the AdventureWorks Schema [here](https://i.stack.imgur.com/LMu4W.gif)
 
 Highlight at least two differences between it and your ERD. Would you change anything in yours?
 ```
-Your answer...
+First of all, the AdventureWorks Schema is huge in comparison with my own schema and much more complete. There is a sophisticated system for sales section, which includes the possibility of having several stores. Also, the information stored about a product is really deep (there is product cost history, for example). I also like the idea of product subcategory. In my case, this could be the information about the publisher. And subcategory could be used as a way to store information about book series. Additionally, I like the idea of shopping carts, because this is a clever way to store information about orders with more than one book. 
 ```
 
 # Criteria
@@ -44,9 +52,9 @@ Your answer...
     * Open a private window in your browser. Copy and paste the link to your pull request into the address bar. Make sure you can see your pull request properly. This helps the technical facilitator and learning support staff review your submission easily.
 
 Checklist:
-- [ ] Create a branch called `model-design`.
-- [ ] Ensure that the repository is public.
-- [ ] Review [the PR description guidelines](https://github.com/UofT-DSI/onboarding/blob/main/onboarding_documents/submissions.md#guidelines-for-pull-request-descriptions) and adhere to them.
-- [ ] Verify that the link is accessible in a private browser window.
+- [x] Create a branch called `model-design`.
+- [x] Ensure that the repository is public.
+- [x] Review [the PR description guidelines](https://github.com/UofT-DSI/onboarding/blob/main/onboarding_documents/submissions.md#guidelines-for-pull-request-descriptions) and adhere to them.
+- [x] Verify that the link is accessible in a private browser window.
 
 If you encounter any difficulties or have questions, please don't hesitate to reach out to our team via our Slack at `#cohort-3-help`. Our Technical Facilitators and Learning Support staff are here to help you navigate any challenges.
